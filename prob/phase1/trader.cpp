@@ -3,6 +3,7 @@
 #include<string>
 using namespace std;
 int totalprofit=0;
+
 class custom_map {
     private:
     struct pairval{
@@ -92,7 +93,9 @@ class custom_map {
 };
 class mymap {
     private:
-    vector< pair< pair<custom_map, int>, bool> >orderbooknew;
+    int count=0,count0=0;int blabla=-2;
+    vector<int> tempmaxsub;
+    vector< pair< pair<custom_map, int>, pair<bool,int> > >orderbooknew;
     vector< pair<custom_map, int >> orderbook;
     vector<int> arbcycle;
     void printarbcycle(){
@@ -164,7 +167,7 @@ class mymap {
         }
         return profit;
     }
-    void getarbitrage(){
+    int getarbitrage(vector<int> &maxsubset){
         vector<int> newboy=arbcycle;
         newboy.pop_back();
         vector<vector<int>>subsets;
@@ -176,7 +179,7 @@ class mymap {
         }
         int maxprofit=0;
         int profit=0;
-        vector<int> maxsubset; 
+        // vector<int> maxsubset; 
         // cout<<"inside getarbitrage checking subsets"<<endl;
         for(auto c:subsets){
             // for(auto k:c){
@@ -200,11 +203,40 @@ class mymap {
                 arbcycle.erase(it);
             }
         }
+        // for(auto k:maxsubset){
+        //         cout<<k<<" ";
+        //     }
+        //     cout<<endl;
+        return maxprofit;
+        
+    }
+    public:
+    mymap(){}
+    void insert(vector< pair<string,int> > orders, int price, bool type,int multiplier,int id){
+        custom_map temp;
+        // count++;
+        for(auto c:orders){
+            temp.insert(c.first,c.second);
+        }
+        orderbooknew.push_back({{temp,price},{type,id}});
+        orderbook.push_back({temp,price});
+        arbcycle.push_back(orderbook.size()-1);
+        // printarbcycle();
+        checkcancellations();
+        // printarbcycle();
+        int maxprofit=0;
+        vector<int> maxsubset;
+        maxprofit=getarbitrage(maxsubset);
+        // printarbcycle();
         if(maxprofit>0){
+            count++;
+            tempmaxsub=maxsubset;
+            // cout<<"if 1"<<count<<" "<<count0<<endl;
+            if(count==multiplier) {//print count for equal to multiplier
             while(!maxsubset.empty()){
                 custom_map temp=orderbook[maxsubset[maxsubset.size()-1]].first;
                 int pricetag=orderbook[maxsubset[maxsubset.size()-1]].second;
-                bool type=orderbooknew[maxsubset[maxsubset.size()-1]].second;
+                bool type=orderbooknew[maxsubset[maxsubset.size()-1]].second.first;
                 for(auto z : temp.data){
                     if(z.str=="") continue;
                     if(type==1) cout<<z.str<<" "<<z.val*-1<<" ";
@@ -214,31 +246,87 @@ class mymap {
                 if(type==1) cout<<pricetag*-1<<" ";
                 else
                 cout<<pricetag<<" ";
+                cout<<multiplier<<" ";
+                cout<<(type==0?'s':'b')<<'#'<<endl;
+                maxsubset.pop_back();
+            }}
+            else if(count==1 && count0!=0){
+                // cout<<"bhai yaha ghusa"<<endl;
+                vector<pair<int,int>> tempo;
+                // for(auto k:maxsubset){
+                // cout<<k<<" ";
+                // }
+                // cout<<endl;
+                for(int j=0;j<maxsubset.size();j++){
+                    // cout<<" loop mai ghusa ";
+                    int z=maxsubset[j];
+                    if(tempo.empty()) {tempo.push_back({z,1});continue;}
+                    // cout<<"inside "<<orderbooknew[tempo[tempo.size()-1].first].second.second<<" "<<orderbooknew[z].second.second<<endl;
+                    if(orderbooknew[tempo[tempo.size()-1].first].second.second==orderbooknew[z].second.second) {tempo[tempo.size()-1].second+=1;}
+                    else {tempo.push_back({z,1});}
+                    // cout<<" loop complete kiya ";
+                }
+                // for(auto k:tempo){
+                // cout<<k.first<<" "<<k.second<<" ";
+                // }
+                // cout<<endl;
+                // maxsubset=tempo;
+                while(!tempo.empty()){
+                custom_map temp=orderbook[tempo[tempo.size()-1].first].first;
+                int pricetag=orderbook[tempo[tempo.size()-1].first].second;
+                bool type=orderbooknew[tempo[tempo.size()-1].first].second.first;
+                int ehehe=tempo[tempo.size()-1].second;
+                for(auto z : temp.data){
+                    if(z.str=="") continue;
+                    if(type==1) cout<<z.str<<" "<<z.val*-1<<" ";
+                    else
+                    cout<<z.str<<" "<<z.val<<" "; 
+                }
+                if(type==1) cout<<pricetag*-1<<" ";
+                else
+                cout<<pricetag<<" ";
+                cout<<ehehe<<" ";
+                cout<<(type==0?'s':'b')<<'#'<<endl;
+                tempo.pop_back();
+                }
+                // cout<<"bhai yaha se nikla"<<endl;
+            count=0;
+            }
+            
+            // cout<<maxprofit<<endl;
+            totalprofit+=maxprofit;
+            }
+        else{
+            // cout<<"if 2"<<count<<" "<<count0<<endl;
+            if(count!=0) //print count for a number less than multiplier makw count=0 count_made_0=1
+            {
+                maxsubset=tempmaxsub;
+                while(!maxsubset.empty()){
+                custom_map temp=orderbook[maxsubset[maxsubset.size()-1]].first;
+                int pricetag=orderbook[maxsubset[maxsubset.size()-1]].second;
+                bool type=orderbooknew[maxsubset[maxsubset.size()-1]].second.first;
+                for(auto z : temp.data){
+                    if(z.str=="") continue;
+                    if(type==1) cout<<z.str<<" "<<z.val*-1<<" ";
+                    else
+                    cout<<z.str<<" "<<z.val<<" "; 
+                }
+                if(type==1) cout<<pricetag*-1<<" ";
+                else
+                cout<<pricetag<<" ";
+                cout<<count<<" ";
                 cout<<(type==0?'s':'b')<<'#'<<endl;
                 maxsubset.pop_back();
             }
+            blabla=count;
+            count=0;
             // cout<<maxprofit<<endl;
             totalprofit+=maxprofit;
+            }
+            else count0++;
+            if(count0==multiplier){count0=0;cout<<"No Trade"<<endl;}
+            if(count0+blabla==multiplier-1){count0=0;}
         }
-        else{
-            cout<<"No Trade\n";
-        }
-    }
-    public:
-    mymap(){}
-    void insert(vector< pair<string,int> > orders, int price, bool type){
-        custom_map temp;
-        for(auto c:orders){
-            temp.insert(c.first,c.second);
-        }
-        orderbooknew.push_back({{temp,price},type});
-        orderbook.push_back({temp,price});
-        arbcycle.push_back(orderbook.size()-1);
-        // printarbcycle();
-        checkcancellations();
-        // printarbcycle();
-        getarbitrage();
-        // printarbcycle();
     }
 };
 
@@ -275,26 +363,30 @@ int main() {
     rcv.terminate();
 
     mymap market;
+    int id=0;
     // char delimeter=' ';
     for(auto c:words){
         if(c=="$") continue;
-
+        id++;
         istringstream ss(c);
         vector<string> tokens;
         for(string token;getline(ss,token,' ');){
             tokens.push_back(token);
         }
         vector< pair<string,int> > orders;
-        int price; bool type;
+        int price; bool type;int multiplier;
         type=(tokens[tokens.size()-1][0]=='b'?0:1);
-        if(type==0)price=stoi(tokens[tokens.size()-2]);
-        else price=stoi(tokens[tokens.size()-2])*-1;
+        multiplier=stoi(tokens[tokens.size()-2]);
+        if(type==0)price=stoi(tokens[tokens.size()-3]);
+        else price=stoi(tokens[tokens.size()-3])*-1;
         for(int i=0;i<((tokens.size()-2)/2);i++){
             if(type==0)orders.push_back({tokens[2*i],stoi(tokens[2*i+1]) });
             else orders.push_back({tokens[2*i],stoi(tokens[2*i+1])*-1 });
         }
         // cout<<"nextline"<<endl;
-        market.insert(orders,price,type);
+        for(int k=0;k<multiplier;k++){
+            market.insert(orders,price,type,multiplier,id);
+        }
     }
     cout<<totalprofit<<endl;
     return 0;

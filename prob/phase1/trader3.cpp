@@ -285,13 +285,16 @@ int main() {
             tokens.push_back(token);
         }
         vector< pair<string,int> > orders;
-        int price; bool type;
+        int price; bool type;int multiplier;
         type=(tokens[tokens.size()-1][0]=='b'?0:1);
-        if(type==0)price=stoi(tokens[tokens.size()-2]);
-        else price=stoi(tokens[tokens.size()-2])*-1;
+        multiplier=stoi(tokens[tokens.size()-2]);
+        if(type==0)price=stoi(tokens[tokens.size()-3]);
+        else price=stoi(tokens[tokens.size()-3])*-1;
         for(int i=0;i<((tokens.size()-2)/2);i++){
-            if(type==0)orders.push_back({tokens[2*i],stoi(tokens[2*i+1]) });
-            else orders.push_back({tokens[2*i],stoi(tokens[2*i+1])*-1 });
+            for(int k=0;k<multiplier;k++){
+                if(type==0)orders.push_back({tokens[2*i],stoi(tokens[2*i+1]) });
+                else orders.push_back({tokens[2*i],stoi(tokens[2*i+1])*-1 });
+            }
         }
         // cout<<"nextline"<<endl;
         market.insert(orders,price,type);
