@@ -178,7 +178,7 @@ class mymap {
     }
         
         
-        // cout<<key<<" "<<price<<" "<<type<<" and "<<data[godplz].str<<" "<<data[godplz].val[0]<<" "<<data[godplz].val[1]<<" "<<data[godplz].val[2]<<" "<<data[godplz].val[3]<<" "<<data[godplz].val[4]<<"  ";
+    // cout<<key<<" "<<price<<" "<<type<<" and "<<data[godplz].str<<" "<<data[godplz].val[0]<<" "<<data[godplz].val[1]<<" "<<data[godplz].val[2]<<" "<<data[godplz].val[3]<<" "<<data[godplz].val[4]<<"  ";
     //     if(data[godplz].val[0]==-1) {
     //         data[godplz].val[0]=price;
     //         cout<<key<<" "<<to_string(price)<<" "<<(type==1?"b":"s")<<endl; //terneray here is opposite
