@@ -4,12 +4,11 @@
 #include<sstream>
 #include<iostream>
 using namespace std;
-//key=curr price,active buy order price ,buy order count, active sell order price, sell order count
 class mymap {
     private:
     struct pairval{
         string str;
-        int val[5]={-1};
+        int val[5]={-1,-1,-1,-1,-1};
     };
     vector<pairval> data;
     long int hash(string str){
@@ -17,17 +16,6 @@ class mymap {
         for(auto c:str){
             hashval = (30*hashval) + static_cast<size_t>(c);
         }
-        
-        // long int godplz=hashval%data.size();
-        // bool flag=0;
-        // long int initial=godplz;
-        // while(!flag){
-        //     if(data[godplz].str=="") return godplz;
-        //     godplz = (godplz+1)%data.size();
-        //     if(initial==godplz) flag=1;
-        // }
-        // data.resize(2*data.size()+1,pairval{"",});
-
         return hashval; 
     }
     public:
@@ -48,26 +36,33 @@ class mymap {
                 data.resize(2*data.size()+1,pairval{"",});
             }
         }
-        if(data[godplz].val[0]==-1) {
+                if(data[godplz].val[0]==-1) {
             data[godplz].val[0]=price;
             cout<<key<<" "<<to_string(price)<<" "<<(type==1?"b":"s")<<endl; //terneray here is opposite
         }
         else if(type==0){
-            if(data[godplz].val[1]==-1 || data[godplz].val[1]<=price){ //ig if there is an active order then either it will remain or new will you can change that
+            if(data[godplz].val[1]==-1 || data[godplz].val[1]<price){ //ig if there is an active order then either it will remain or new will you can change that
+                if(data[godplz].val[1]!=price){
+                    data[godplz].val[1]=price;
+                    data[godplz].val[2]=1;
+                }
+                else{
+                    data[godplz].val[2]++;
+                }
                 if(data[godplz].val[3]==-1 || data[godplz].val[3]!=price){
                     if(data[godplz].val[0]<price){
                         cout<<key<<" "<<to_string(price)<<" s"<<endl;
                         data[godplz].val[0]=price;
+                        if(data[godplz].val[2]==1){
+                            data[godplz].val[1]=-1;
+                            data[godplz].val[2]=-1;
+                        }
+                        else{
+                            data[godplz].val[2]--;
+                        }
                     }
                     else{
                         cout<<"No Trade\n";
-                        if(data[godplz].val[1]!=price){
-                            data[godplz].val[1]=price;
-                            data[godplz].val[2]=1;
-                        }
-                        else{
-                            data[godplz].val[2]++;
-                        }
                     }
                 }
                 else{
@@ -76,6 +71,10 @@ class mymap {
                     else{
                         data[godplz].val[3]=-1;data[godplz].val[4]=-1;
                     }
+                    if(data[godplz].val[2]>1){data[godplz].val[2]--;}
+                    else{
+                        data[godplz].val[1]=-1;data[godplz].val[2]=-1;
+                    }
                 }
             }
             else{
@@ -83,21 +82,28 @@ class mymap {
             }
         }
         else if(type==1){
-            if(data[godplz].val[3]==-1 || data[godplz].val[3]>=price){ //ig if there is an active order then either it will remain or new will you can change that
+            if(data[godplz].val[3]==-1 || data[godplz].val[3]>price){ //ig if there is an active order then either it will remain or new will you can change that
+                if(data[godplz].val[3]!=price){
+                    data[godplz].val[3]=price;
+                    data[godplz].val[4]=1;
+                }
+                else{
+                    data[godplz].val[4]++;
+                }
                 if(data[godplz].val[1]==-1 || data[godplz].val[1]!=price){
                     if(data[godplz].val[0]>price){
                         cout<<key<<" "<<to_string(price)<<" b"<<endl;
                         data[godplz].val[0]=price;
+                        if(data[godplz].val[4]==1){
+                            data[godplz].val[3]=-1;
+                            data[godplz].val[4]=-1;
+                        }
+                        else{
+                            data[godplz].val[4]--;
+                        }
                     }
                     else{
                         cout<<"No Trade\n";
-                        if(data[godplz].val[3]!=price){
-                            data[godplz].val[3]=price;
-                            data[godplz].val[4]=1;
-                        }
-                        else{
-                            data[godplz].val[4]++;
-                        }
                     }
                 }
                 else{
@@ -105,6 +111,10 @@ class mymap {
                     if(data[godplz].val[2]>1) {data[godplz].val[2]--;}
                     else{
                         data[godplz].val[1]=-1;data[godplz].val[2]=-1;
+                    }
+                    if(data[godplz].val[4]>1){data[godplz].val[4]--;}
+                    else{
+                        data[godplz].val[3]=-1;data[godplz].val[4]=-1;
                     }
                 }
             }
@@ -119,9 +129,6 @@ class mymap {
 
 
 int main() {
-
-    // Receiver rcv;
-    // sleep(5);
     bool foundDollar = false;
     std::vector<std::string> words;   
     std::string loadit;
@@ -142,7 +149,6 @@ int main() {
     }        
     std::istringstream iss(loadit);
     std::string word;
-    //std::vector<std::string> words;
     while (std::getline(iss,word,'*')) {
     words.push_back(word);
     }
@@ -151,10 +157,10 @@ int main() {
     std::cout<<words[i]<<"\r\n";
     }
     rcv.terminate();
-
     mymap orderbook;
-    // char delimeter=' ';
     for(auto c:words){
+        cout<<c<<endl;
+        // if(c=="$") continue;
         istringstream ss(c);
         vector<string> tokens;
         for(string token;getline(ss,token,' ');){
