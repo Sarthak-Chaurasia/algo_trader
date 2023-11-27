@@ -2,10 +2,11 @@
 #include<vector>
 #include<string>
 using namespace std;
-class custom_map {
+int totalprofit=0;
+class custom_map1 {
     private:
     struct pairval{
-        string str;int val;
+        string str="";int val;
     };
     long int hash(string str){
         long int hashval=10;
@@ -34,7 +35,7 @@ class custom_map {
     }
     public:
     vector<pairval> data;
-    custom_map(size_t initval=100) : data(initval, pairval{"",}){}
+    custom_map1(size_t initval=100) : data(initval, pairval{"",}){}
     void insert(string str1, int val1){
         long int indexval=index(str1);
         data[indexval].str=str1;
@@ -43,7 +44,9 @@ class custom_map {
     long int find(string key){
         return index(key);
     }
-    bool compare_map(custom_map temp, custom_map temp1){
+    bool compare_map(custom_map1 temp, custom_map1 temp1){
+        // cout<<temp.data.size()<<" "<<temp1.data.size()<<endl;
+        // if(temp.data.size()<temp1.data.size()) {cout<<"here\n";custom_map1 temp2=temp;temp=temp1;temp1=temp2;}
         for(auto c:temp.data){ //this parsing might not be allowed as data is declared as a private variable
             if(c.str=="") continue;
             if(temp1.data[temp1.find(c.str)].str==c.str){
@@ -53,9 +56,19 @@ class custom_map {
             }
             else return 0;
         }
+        for(auto c:temp1.data){ //this parsing might not be allowed as data is declared as a private variable
+            if(c.str=="") continue;
+            if(temp.data[temp.find(c.str)].str==c.str){
+                // cout<<"in here";
+                if(temp.data[temp.find(c.str)].val==c.val)
+                continue;
+                else return 0;
+            }
+            else return 0;
+        }
         return 1;
     }
-    bool opposite(custom_map temp, custom_map temp1){
+    bool opposite(custom_map1 temp, custom_map1 temp1){
         for(auto c:temp.data){ //this parsing might not be allowed as data is declared as a private variable
             if(c.str=="") continue;
             if(temp1.data[temp1.find(c.str)].str==c.str){
@@ -65,49 +78,60 @@ class custom_map {
             }
             else return 0;
         }
+        for(auto c:temp1.data){ //this parsing might not be allowed as data is declared as a private variable
+            if(c.str=="") continue;
+            if(temp.data[temp.find(c.str)].str==c.str){
+                if(temp.data[temp.find(c.str)].val==c.val*-1)
+                continue;
+                else return 0;
+            }
+            else return 0;
+        }
         return 1;
     }
 };
-//key=curr price,active buy order price ,buy order count, active sell order price, sell order count
-class mymap {
+class mymap1 {
     private:
-    // struct pairval{
-    //     string str;
-    //     int bP=-1,sP=-1,bC=-1,sC=-1;
-    //     vector<int> buy={},sell={};
-    // };
-    // vector<pairval> stocklist= vector<pairval>(100);
-    vector< pair<custom_map, int >> orderbook;
-    // vector<tuple <vector < pair<string, int> >, int, bool> > orderbook;
+    vector< pair< pair<custom_map1, int>, bool> >orderbooknew;
+    vector< pair<custom_map1, int >> orderbook;
     vector<int> arbcycle;
-    
+    void printarbcycle(){
+        for(auto k:arbcycle){
+            cout<<k<<" ";
+        }
+        cout<<endl;
+    }
     void checkcancellations(){
         int price=orderbook[orderbook.size()-1].second;
-        custom_map temp=orderbook[orderbook.size()-1].first;
+        custom_map1 temp=orderbook[orderbook.size()-1].first;
         for(int i=0;i<arbcycle.size()-1;i++){
-            custom_map temp1=orderbook[arbcycle[i]].first;
+            custom_map1 temp1=orderbook[arbcycle[i]].first;
             int price1=orderbook[arbcycle[i]].second;
             bool flag=temp.compare_map(temp,temp1); //we can avoid passing temp here (if time remove)
             if(flag==1){
+                // cout<<"flag was 1 ";
+
                 if(price<price1) {arbcycle.pop_back();break;} //ig this erase is wrong this begin() is wrong
                 else if(price>price1) {arbcycle.erase(arbcycle.begin()+i);}
+                // printarbcycle();
             }
             else{
                 bool flag1=temp.opposite(temp,temp1);
-                if(flag1==1){
+                if(flag1==1 && price+price1==0){
                 arbcycle.erase(arbcycle.begin()+i);arbcycle.pop_back();
             }
             }
+            // cout<<"inside for loop for checkcancellation ";printarbcycle();
         }
     }
     void generate(vector<int>arbcycle,vector<int> &current, vector<vector <int>> &subsets, int j,int index){
         if (current.size() == j) {
         subsets.push_back(current);
-        cout<<"{";
-        for(auto c: current){
-            cout<<c<<",";
-        }
-        cout<<"}\n";
+        // cout<<"{";
+        // for(auto c: current){
+        //     cout<<c<<",";
+        // }
+        // cout<<"}\n";
         return;
     }
     for (int i = index; i < arbcycle.size(); ++i) {
@@ -123,9 +147,9 @@ class mymap {
 
     int checkarbitrage(vector<int> c){
         int profit=0;
-        custom_map total;
+        custom_map1 total;
         for(auto s:c){
-            custom_map t=orderbook[s].first;
+            custom_map1 t=orderbook[s].first;
             for(int i=0;i<t.data.size();i++){
                 if(t.data[i].str=="") continue;
                 if(total.data[total.find(t.data[i].str)].str=="") {total.insert(t.data[i].str,t.data[i].val);}
@@ -135,131 +159,87 @@ class mymap {
             }
             profit+=orderbook[s].second;
         }
+        for(auto k:total.data){
+            if(k.str!="" && k.val!=0) return 0; 
+        }
         return profit;
     }
     void getarbitrage(){
         vector<int> newboy=arbcycle;
         newboy.pop_back();
         vector<vector<int>>subsets;
-        for(int j=2;j<=arbcycle.size()-1;j++){
+        for(int j=1;j<=arbcycle.size()-1;j++){
             makesubset(newboy,subsets,j); //check if the subsets are forming correctly
         }
-        for(auto k:subsets){
+        for(auto& k:subsets){
             k.push_back(arbcycle[arbcycle.size()-1]);
         }
         int maxprofit=0;
         int profit=0;
         vector<int> maxsubset; 
+        // cout<<"inside getarbitrage checking subsets"<<endl;
         for(auto c:subsets){
+            // for(auto k:c){
+            //     cout<<k<<" ";
+            // }
+            // cout<<endl;
             profit=checkarbitrage(c);
             if(profit>maxprofit) {
                 maxprofit=profit;
                 maxsubset=c;
             }
         }
+        // cout<<"maxprofit "<<maxprofit<<" ";
+        // for(auto k:maxsubset){
+        //         cout<<k<<" ";
+        //     }
+        //     cout<<endl;
+        for(auto l : maxsubset){
+            auto it=find(arbcycle.begin(),arbcycle.end(),l);
+            if(it!=arbcycle.end()){
+                arbcycle.erase(it);
+            }
+        }
         if(maxprofit>0){
-            
+            while(!maxsubset.empty()){
+                custom_map1 temp=orderbook[maxsubset[maxsubset.size()-1]].first;
+                int pricetag=orderbook[maxsubset[maxsubset.size()-1]].second;
+                bool type=orderbooknew[maxsubset[maxsubset.size()-1]].second;
+                for(auto z : temp.data){
+                    if(z.str=="") continue;
+                    if(type==1) cout<<z.str<<" "<<z.val*-1<<" ";
+                    else
+                    cout<<z.str<<" "<<z.val<<" "; 
+                }
+                if(type==1) cout<<pricetag*-1<<" ";
+                else
+                cout<<pricetag<<" ";
+                cout<<(type==0?'s':'b')<<'#'<<endl;
+                maxsubset.pop_back();
+            }
+            // cout<<maxprofit<<endl;
+            totalprofit+=maxprofit;
         }
         else{
-            cout<<"No Trade\n";
+            cout<<"No Trade"<<endl;
         }
     }
     public:
-    mymap(){}
-    void insert(vector< pair<string,int> > orders, int price){
-        custom_map temp;
+    mymap1(){}
+    void insert(vector< pair<string,int> > orders, int price, bool type){
+        custom_map1 temp;
         for(auto c:orders){
             temp.insert(c.first,c.second);
         }
+        orderbooknew.push_back({{temp,price},type});
         orderbook.push_back({temp,price});
         arbcycle.push_back(orderbook.size()-1);
+        // printarbcycle();
         checkcancellations();
+        // printarbcycle();
         getarbitrage();
+        // printarbcycle();
     }
-        
-        
-    // cout<<key<<" "<<price<<" "<<type<<" and "<<data[godplz].str<<" "<<data[godplz].val[0]<<" "<<data[godplz].val[1]<<" "<<data[godplz].val[2]<<" "<<data[godplz].val[3]<<" "<<data[godplz].val[4]<<"  ";
-    //     if(data[godplz].val[0]==-1) {
-    //         data[godplz].val[0]=price;
-    //         cout<<key<<" "<<to_string(price)<<" "<<(type==1?"b":"s")<<endl; //terneray here is opposite
-    //     }
-    //     else if(type==0){
-    //         if(data[godplz].val[1]==-1 || data[godplz].val[1]<=price){ //ig if there is an active order then either it will remain or new will you can change that
-    //             if(data[godplz].val[1]!=price){
-    //                 data[godplz].val[1]=price;
-    //                 data[godplz].val[2]=1;
-    //             }
-    //             else{
-    //                 data[godplz].val[2]++;
-    //             }
-    //             if(data[godplz].val[3]==-1 || data[godplz].val[3]!=price){
-    //                 if(data[godplz].val[0]<price){
-    //                     cout<<key<<" "<<to_string(price)<<" s"<<endl;
-    //                     data[godplz].val[0]=price;
-    //                     if(data[godplz].val[2]==1){
-    //                         data[godplz].val[1]=-1;
-    //                         data[godplz].val[2]=-1;
-    //                     }
-    //                     else{
-    //                         data[godplz].val[2]--;
-    //                     }
-    //                 }
-    //                 else{
-    //                     cout<<"No Trade\n";
-    //                 }
-    //             }
-    //             else{
-    //                 cout<<"No Trade\n"; //trade happening between some two but not us so curr price remains same
-    //                 if(data[godplz].val[4]>1) {data[godplz].val[4]--;}
-    //                 else{
-    //                     data[godplz].val[3]=-1;data[godplz].val[4]=-1;
-    //                 }
-    //             }
-    //         }
-    //         else{
-    //             cout<<"No Trade\n";
-    //         }
-    //     }
-    //     else if(type==1){
-    //         if(data[godplz].val[3]==-1 || data[godplz].val[3]>=price){ //ig if there is an active order then either it will remain or new will you can change that
-    //             if(data[godplz].val[3]!=price){
-    //                 data[godplz].val[3]=price;
-    //                 data[godplz].val[4]=1;
-    //             }
-    //             else{
-    //                 data[godplz].val[4]++;
-    //             }
-    //             if(data[godplz].val[1]==-1 || data[godplz].val[1]!=price){
-    //                 if(data[godplz].val[0]>price){
-    //                     cout<<key<<" "<<to_string(price)<<" b"<<endl;
-    //                     data[godplz].val[0]=price;
-    //                     if(data[godplz].val[4]==1){
-    //                         data[godplz].val[3]=-1;
-    //                         data[godplz].val[4]=-1;
-    //                     }
-    //                     else{
-    //                         data[godplz].val[4]--;
-    //                     }
-    //                 }
-    //                 else{
-    //                     cout<<"No Trade\n";
-    //                 }
-    //             }
-    //             else{
-    //                 cout<<"No Trade\n"; //trade happening between some two but not us so curr price remains same
-    //                 if(data[godplz].val[2]>1) {data[godplz].val[2]--;}
-    //                 else{
-    //                     data[godplz].val[1]=-1;data[godplz].val[2]=-1;
-    //                 }
-    //             }
-    //         }
-    //         else{
-    //             cout<<"No Trade\n";
-    //         }
-    //     }
-
-    // }
-
 };
 
 
@@ -285,7 +265,6 @@ int main() {
     }        
     std::istringstream iss(loadit);
     std::string word;
-    //std::vector<std::string> words;
     while (std::getline(iss,word,'*')) {
     words.push_back(word);
     }
@@ -295,7 +274,7 @@ int main() {
     // }
     rcv.terminate();
 
-    mymap market;
+    mymap1 market;
     // char delimeter=' ';
     for(auto c:words){
         if(c=="$") continue;
@@ -314,8 +293,9 @@ int main() {
             if(type==0)orders.push_back({tokens[2*i],stoi(tokens[2*i+1]) });
             else orders.push_back({tokens[2*i],stoi(tokens[2*i+1])*-1 });
         }
-        cout<<type<<endl;
-        market.insert(orders,price);
+        // cout<<"nextline"<<endl;
+        market.insert(orders,price,type);
     }
+    cout<<totalprofit<<endl;
     return 0;
 }

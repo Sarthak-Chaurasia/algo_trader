@@ -1,9 +1,27 @@
 Receiver is listening on port 8888
+0 
+
+0
+if 20 0
 No Trade
-No Trade
-No Trade
-A -2 C 3 100 2 s#
-A -1 B 1 100 1 s#
-B -3 C -3 -100 2 s#
-A 1 B 1 100 5 s#
-600
+0 1 
+
+0
+if 20 0
+0 1 2 
+
+0
+if 20 1
+0 1 2 3 
+
+0
+if 20 2
+0 1 2 3 4 
+
+0
+if 20 3
+0 1 2 3 4 5 
+0 1 2 3 4 5 
+50
+if 11 0
+50

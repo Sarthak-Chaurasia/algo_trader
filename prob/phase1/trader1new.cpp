@@ -62,11 +62,11 @@ class mymap {
                         }
                     }
                     else{
-                        cout<<"No Trade\n";
+                        cout<<"No Trade"<<endl;
                     }
                 }
                 else{
-                    cout<<"No Trade\n"; //trade happening between some two but not us so curr price remains same
+                    cout<<"No Trade"<<endl; //trade happening between some two but not us so curr price remains same
                     if(data[godplz].val[4]>1) {data[godplz].val[4]--;}
                     else{
                         data[godplz].val[3]=-1;data[godplz].val[4]=-1;
@@ -78,7 +78,7 @@ class mymap {
                 }
             }
             else{
-                cout<<"No Trade\n";
+                cout<<"No Trade"<<endl;
             }
         }
         else if(type==1){
@@ -103,11 +103,11 @@ class mymap {
                         }
                     }
                     else{
-                        cout<<"No Trade\n";
+                        cout<<"No Trade"<<endl;
                     }
                 }
                 else{
-                    cout<<"No Trade\n"; //trade happening between some two but not us so curr price remains same
+                    cout<<"No Trade"<<endl; //trade happening between some two but not us so curr price remains same
                     if(data[godplz].val[2]>1) {data[godplz].val[2]--;}
                     else{
                         data[godplz].val[1]=-1;data[godplz].val[2]=-1;
@@ -119,7 +119,7 @@ class mymap {
                 }
             }
             else{
-                cout<<"No Trade\n";
+                cout<<"No Trade"<<endl;
             }
         }
 

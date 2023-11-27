@@ -221,7 +221,7 @@ class mymap {
             totalprofit+=maxprofit;
         }
         else{
-            cout<<"No Trade\n";
+            cout<<"No Trade"<<endl;
         }
     }
     public:
